@@ -8,6 +8,7 @@ public class CubeGenerator : MonoBehaviour
     public float radius = 3.0f;
 
     static Material lineMaterial;
+
     static void CreateLineMaterial()
     {
         if (!lineMaterial)
@@ -34,12 +35,12 @@ public class CubeGenerator : MonoBehaviour
         // Apply the line material
         lineMaterial.SetPass(0);
 
-        GL.PushMatrix();
-        // Set transformation matrix for drawing to
-        // match our transform
-        GL.MultMatrix(transform.localToWorldMatrix);
-        CreateSquare();
-        GL.PopMatrix();
+        //GL.PushMatrix();
+        //// Set transformation matrix for drawing to
+        //// match our transform
+        //GL.MultMatrix(transform.localToWorldMatrix);
+        //CreateSquare();
+        //GL.PopMatrix();
     }
 
     private static void CreateSquare()
@@ -61,12 +62,89 @@ public class CubeGenerator : MonoBehaviour
         GL.End();
     }
 
+
     // Using Draw API
     public Mesh mesh;
     public Material material;
+
+    private void CreateCubeMesh()
+    {
+        // Define the vertices of the cube mesh
+        Vector3[] vertices = new Vector3[]
+        {
+            new Vector3(-0.5f, -0.5f,  0.5f), // Front bottom left
+            new Vector3( 0.5f, -0.5f,  0.5f), // Front bottom right
+            new Vector3( 0.5f,  0.5f,  0.5f), // Front top right
+            new Vector3(-0.5f,  0.5f,  0.5f), // Front top left
+            new Vector3(-0.5f, -0.5f, -0.5f), // Back bottom left
+            new Vector3( 0.5f, -0.5f, -0.5f), // Back bottom right
+            new Vector3( 0.5f,  0.5f, -0.5f), // Back top right
+            new Vector3(-0.5f,  0.5f, -0.5f)  // Back top left
+        };
+
+        // Define the normals of the cube mesh
+        Vector3[] normals = new Vector3[]
+        {
+            Vector3.forward,
+            Vector3.forward,
+            Vector3.forward,
+            Vector3.forward,
+            Vector3.back,
+            Vector3.back,
+            Vector3.back,
+            Vector3.back
+        };
+
+        // Define the triangles of the cube mesh
+        int[] triangles = new int[]
+        {
+            // Front face
+            0, 2, 1,
+            0, 3, 2,
+
+            // Back face
+            4, 5, 6,
+            4, 6, 7,
+
+            // Top face
+            3, 6, 2,
+            3, 7, 6,
+
+            // Bottom face
+            0, 1, 5,
+            0, 5, 4,
+
+            // Left face
+            0, 7, 3,
+            0, 4, 7,
+
+            // Right face
+            1, 2, 6,
+            1, 6, 5
+        };
+
+        // Create a new mesh and set its vertices, normals, and triangles
+        mesh = new Mesh();
+        mesh.vertices = vertices;
+        mesh.normals = normals;
+        mesh.triangles = triangles;
+        material = new Material(Shader.Find("Standard"));
+    }
+
+    private void DrawCubeMesh()
+    {
+        // Draw the mesh using Graphics.DrawMesh
+        Quaternion rotation = Quaternion.Euler(0, 45, 0);
+        Graphics.DrawMesh(mesh, Vector3.zero, rotation, material, 0);
+    }
+
+    private void Start()
+    {
+        CreateCubeMesh();
+    }
+
     public void Update()
     {
-        // will make the mesh appear in the Scene at origin position
-        Graphics.DrawMesh(mesh, Vector3.zero, Quaternion.identity, material, 0);
+        DrawCubeMesh();
     }
 }
